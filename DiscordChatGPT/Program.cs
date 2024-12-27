@@ -53,8 +53,8 @@ public class Program
     private static async Task OnClientReady()
     {
         var globalCommand = new SlashCommandBuilder()
-            .WithName("test")
-            .WithDescription("Test Command")
+            .WithName("help")
+            .WithDescription("List all commands")
             .Build();
         await _client.CreateGlobalApplicationCommandAsync(globalCommand);
         
