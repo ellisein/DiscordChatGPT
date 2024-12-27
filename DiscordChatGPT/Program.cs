@@ -32,9 +32,18 @@ public class Program
 
     private static IServiceProvider ConfigureServices()
     {
+        var socketConfig = new DiscordSocketConfig
+        {
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
+        };
         var collection = new ServiceCollection()
             .AddHttpClient()
-            .AddSingleton<DiscordSocketClient>()
+            .AddSingleton(socketConfig)
+            .AddSingleton<DiscordSocketClient>(provider =>
+            {
+                var cfg = provider.GetRequiredService<DiscordSocketConfig>();
+                return new DiscordSocketClient(cfg);
+            })
             .AddSingleton<OpenAiService>()
             .AddSingleton<CommandService>()
             .AddSingleton<ChatHandler>();
