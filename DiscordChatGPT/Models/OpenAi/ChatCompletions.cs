@@ -11,13 +11,13 @@ public class ChatCompletionsRequest
     public List<ChatMessage> Messages { get; init; } = new();
 }
 
-public class ChatCompletionsResponse
+public class ChatCompletion
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = "";
     
     [JsonPropertyName("choices")]
-    public List<ChatCompletionsResponseChoice> Choices { get; init; } = new();
+    public List<ChatCompletionChoice> Choices { get; init; } = new();
 }
 
 public class ChatMessage
@@ -29,7 +29,7 @@ public class ChatMessage
     public string Content { get; init; } = "";
 }
 
-public class ChatCompletionsResponseChoice
+public class ChatCompletionChoice
 {
     [JsonPropertyName("index")]
     public int Index { get; init; }

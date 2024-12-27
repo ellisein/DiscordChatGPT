@@ -10,6 +10,8 @@ public class OpenAiService
     private readonly HttpClient _httpClient;
     private readonly string? _apiKey;
 
+    private const string GptModel = "gpt-4o-mini";
+
     public OpenAiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -21,7 +23,7 @@ public class OpenAiService
         var messages = new List<ChatMessage> { new ChatMessage { Role = "user", Content = message } };
         var requestBody = new ChatCompletionsRequest
         {
-            Model = "gpt-4o-mini",
+            Model = GptModel,
             Messages = messages
         };
         var jsonContent = JsonSerializer.Serialize(requestBody);
@@ -33,7 +35,7 @@ public class OpenAiService
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         
-        var responseBody = await response.Content.ReadFromJsonAsync<ChatCompletionsResponse>();
+        var responseBody = await response.Content.ReadFromJsonAsync<ChatCompletion>();
         return responseBody?.Choices.FirstOrDefault()?.Message.Content ?? "";
     }
 }
