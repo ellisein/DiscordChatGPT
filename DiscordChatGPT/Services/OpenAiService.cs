@@ -40,12 +40,14 @@ public class OpenAiService
         return responseBody?.Choices.FirstOrDefault()?.Message.Content ?? "";
     }
 
-    public async Task<ImageData?> GenerateImage(string prompt)
+    public async Task<ImageData?> GenerateImage(string prompt, AspectRatio size, Quality quality)
     {
         var requestBody = new ImageGenerationsRequest
         {
             Model = ImageModel,
             Prompt = prompt,
+            Size = size.ToStringValue(),
+            Quality = quality.ToStringValue(),
         };
         var jsonContent = JsonSerializer.Serialize(requestBody);
 

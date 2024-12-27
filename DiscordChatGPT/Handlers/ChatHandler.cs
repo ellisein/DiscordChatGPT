@@ -2,6 +2,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using DiscordChatGPT.Models.OpenAi;
 using DiscordChatGPT.Services;
 
 namespace DiscordChatGPT.Handlers;
@@ -88,14 +89,37 @@ public class CommandModule : ModuleBase<SocketCommandContext>
     public async Task GenerateImage([Remainder] string prompt)
     {
         await Context.Channel.SendMessageAsync("Generating an image...");
-        var imageData = await _openAiService.GenerateImage(prompt);
+
+        var size = AspectRatio.None;
+        var split = prompt.Split();
+        if (split.Length > 1)
+        {
+            size = AspectRatioExtensions.From(split[0]);
+            if (size != AspectRatio.None)
+            {
+                prompt = string.Join(" ", split.Skip(1));
+            }
+        }
+
+        var quality = Quality.None;
+        split = prompt.Split();
+        if (split.Length > 1)
+        {
+            quality = QualityExtensions.From(split[0]);
+            if (quality != Quality.None)
+            {
+                prompt = string.Join(" ", split.Skip(1));
+            }
+        }
+        
+        var imageData = await _openAiService.GenerateImage(prompt, size, quality);
 
         if (imageData == null)
             return;
 
         var embed = new EmbedBuilder()
             .WithTitle("Generated Image")
-            .WithDescription($"Revised Prompt: {imageData.RevisedPrompt}")
+            .WithFooter(imageData.RevisedPrompt)
             .WithImageUrl(imageData.Url)
             .Build();
         await ReplyAsync(embed: embed);
