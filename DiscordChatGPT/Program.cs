@@ -9,20 +9,23 @@ namespace DiscordChatGPT;
 
 public class Program
 {
+    private static DiscordSocketClient _client;
+    
     public static async Task Main()
     {
         var servicesProvider = ConfigureServices();
         
-        var client = servicesProvider.GetRequiredService<DiscordSocketClient>();
-        client.Log += Log;
+        _client = servicesProvider.GetRequiredService<DiscordSocketClient>();
+        _client.Log += Log;
+        _client.Ready += OnClientReady;
         
         var chatHandler = servicesProvider.GetRequiredService<ChatHandler>();
-        await chatHandler.InstallCommandsAsync();
+        await chatHandler.Initialize();
         
         var token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
         
-        await client.LoginAsync(TokenType.Bot, token);
-        await client.StartAsync();
+        await _client.LoginAsync(TokenType.Bot, token);
+        await _client.StartAsync();
         
         await Task.Delay(-1);
     }
@@ -36,6 +39,17 @@ public class Program
             .AddSingleton<CommandService>()
             .AddSingleton<ChatHandler>();
         return collection.BuildServiceProvider();
+    }
+
+    private static async Task OnClientReady()
+    {
+        var globalCommand = new SlashCommandBuilder()
+            .WithName("test")
+            .WithDescription("Test Command")
+            .Build();
+        await _client.CreateGlobalApplicationCommandAsync(globalCommand);
+        
+        _client.SlashCommandExecuted += SlashCommandHandler.HandleSlashCommandAsync;
     }
     
     private static Task Log(LogMessage msg)
