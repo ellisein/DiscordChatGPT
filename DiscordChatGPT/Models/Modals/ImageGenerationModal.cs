@@ -18,4 +18,6 @@ public class ImageGenerationModal : IModal
     [InputLabel("Prompt")]
     [ModalTextInput("prompt", TextInputStyle.Paragraph, maxLength: 2000)]
     public string Prompt { get; set; } = "";
+
+    public string Preset => $"{Prompt}:{AspectRatio}:{Quality}";
 }

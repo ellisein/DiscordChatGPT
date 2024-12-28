@@ -49,9 +49,7 @@ public class Program
             })
             .AddSingleton<OpenAiService>()
             .AddSingleton<CommandService>()
-            .AddSingleton<ChatHandler>()
-            .AddSingleton<ButtonHandler>()
-            .AddSingleton<MenuHandler>();
+            .AddSingleton<ChatHandler>();
         return collection.BuildServiceProvider();
     }
 
@@ -67,12 +65,6 @@ public class Program
             var ctx = new SocketInteractionContext(_client, interaction);
             await interactionService.ExecuteCommandAsync(ctx, scope.ServiceProvider);
         };
-        
-        var buttonHandler = _services.GetRequiredService<ButtonHandler>();
-        _client.ButtonExecuted += buttonHandler.OnButtonExecutedAsync;
-        
-        var menuHandler = _services.GetRequiredService<MenuHandler>();
-        _client.SelectMenuExecuted += menuHandler.OnSelectMenuExecutedAsync;
     }
     
     private static Task Log(LogMessage msg)

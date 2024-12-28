@@ -1,15 +1,11 @@
-﻿using Discord.WebSocket;
+﻿using Discord.Interactions;
 
 namespace DiscordChatGPT.Handlers;
 
-public class MenuHandler
+public class MenuHandler : InteractionModuleBase<SocketInteractionContext>
 {
-    public async Task OnSelectMenuExecutedAsync(SocketMessageComponent component)
+    [ComponentInteraction("test_menu")]
+    public async Task OnTestMenuSelectedAsync(string[] selected)
     {
-        switch (component.Data.CustomId)
-        {
-            case "":
-                break;
-        }
     }
 }
