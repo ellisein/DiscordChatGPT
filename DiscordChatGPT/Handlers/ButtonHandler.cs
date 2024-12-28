@@ -34,7 +34,8 @@ public class ButtonHandler : InteractionModuleBase<SocketInteractionContext>
             .WithImageUrl(imageData.Url)
             .Build();
         var button = new ComponentBuilder()
-            .WithButton("RETRY", $"image_generation:{prompt}:{aspectRatio}:{quality}", ButtonStyle.Secondary)
+            .WithButton("RETRY", $"image_generation:{prompt}:{aspectRatio}:{quality}",
+                ButtonStyle.Secondary)
             .Build();
         await FollowupAsync(embed: embed, components: button);
     }

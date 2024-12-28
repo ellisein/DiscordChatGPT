@@ -35,7 +35,8 @@ public class ModalHandlerModule : InteractionModuleBase<SocketInteractionContext
             .WithImageUrl(imageData.Url)
             .Build();
         var button = new ComponentBuilder()
-            .WithButton("RETRY", $"image_generation:{modal.Preset}", ButtonStyle.Secondary)
+            .WithButton("RETRY", $"image_generation:{modal.Prompt}:{modal.AspectRatio}:{modal.Quality}",
+                ButtonStyle.Secondary)
             .Build();
         await FollowupAsync(embed: embed, components: button);
     }
