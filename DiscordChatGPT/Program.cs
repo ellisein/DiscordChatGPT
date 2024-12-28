@@ -1,5 +1,7 @@
-﻿using Discord;
+﻿using System.Reflection;
+using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using DiscordChatGPT.Handlers;
 using DiscordChatGPT.Services;
@@ -10,16 +12,17 @@ namespace DiscordChatGPT;
 public class Program
 {
     private static DiscordSocketClient _client;
+    private static IServiceProvider _services;
     
     public static async Task Main()
     {
-        var servicesProvider = ConfigureServices();
+        _services = ConfigureServices();
         
-        _client = servicesProvider.GetRequiredService<DiscordSocketClient>();
+        _client = _services.GetRequiredService<DiscordSocketClient>();
         _client.Log += Log;
         _client.Ready += OnClientReady;
         
-        var chatHandler = servicesProvider.GetRequiredService<ChatHandler>();
+        var chatHandler = _services.GetRequiredService<ChatHandler>();
         await chatHandler.Initialize();
         
         var token = Environment.GetEnvironmentVariable("DISCORD_TOKEN");
@@ -52,13 +55,16 @@ public class Program
 
     private static async Task OnClientReady()
     {
-        var globalCommand = new SlashCommandBuilder()
-            .WithName("help")
-            .WithDescription("List all commands")
-            .Build();
-        await _client.CreateGlobalApplicationCommandAsync(globalCommand);
-        
-        _client.SlashCommandExecuted += SlashCommandHandler.HandleSlashCommandAsync;
+        var interactionService = new InteractionService(_client);
+        await interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        await interactionService.RegisterCommandsGloballyAsync();
+
+        _client.InteractionCreated += async interaction =>
+        {
+            var scope = _services.CreateScope();
+            var ctx = new SocketInteractionContext(_client, interaction);
+            await interactionService.ExecuteCommandAsync(ctx, scope.ServiceProvider);
+        };
     }
     
     private static Task Log(LogMessage msg)
