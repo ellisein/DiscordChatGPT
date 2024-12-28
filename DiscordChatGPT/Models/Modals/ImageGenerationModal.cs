@@ -8,11 +8,11 @@ public class ImageGenerationModal : IModal
     public string Title => "Image Generation";
     
     [InputLabel("Aspect Ratio (square | wide | portrait)")]
-    [ModalTextInput("aspect_ratio", placeholder: "square")]
+    [ModalTextInput("aspect_ratio", initValue: "square")]
     public string AspectRatio { get; set; } = "square";
 
     [InputLabel("Quality (standard | hd)")]
-    [ModalTextInput("quality", placeholder: "standard")]
+    [ModalTextInput("quality", initValue: "standard")]
     public string Quality { get; set; } = "standard";
 
     [InputLabel("Prompt")]
