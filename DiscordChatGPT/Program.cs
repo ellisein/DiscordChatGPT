@@ -50,7 +50,8 @@ public class Program
             .AddSingleton<OpenAiService>()
             .AddSingleton<CommandService>()
             .AddSingleton<ChatHandler>()
-            .AddSingleton<ButtonHandler>();
+            .AddSingleton<ButtonHandler>()
+            .AddSingleton<MenuHandler>();
         return collection.BuildServiceProvider();
     }
 
@@ -68,7 +69,10 @@ public class Program
         };
         
         var buttonHandler = _services.GetRequiredService<ButtonHandler>();
-        _client.ButtonExecuted += buttonHandler.OnButtonExecutedAsync; 
+        _client.ButtonExecuted += buttonHandler.OnButtonExecutedAsync;
+        
+        var menuHandler = _services.GetRequiredService<MenuHandler>();
+        _client.SelectMenuExecuted += menuHandler.OnSelectMenuExecutedAsync;
     }
     
     private static Task Log(LogMessage msg)
