@@ -12,6 +12,8 @@ public class OpenAiService
 
     private const string ChatModel = "gpt-4o-mini";
     private const string ImageModel = "dall-e-3";
+    
+    private readonly List<ChatMessage> _history = new();
 
     public OpenAiService(HttpClient httpClient)
     {
@@ -21,11 +23,12 @@ public class OpenAiService
 
     public async Task<string> CreateChatCompletions(string message)
     {
-        var messages = new List<ChatMessage> { new ChatMessage { Role = "user", Content = message } };
+        _history.Add(new ChatMessage { Role = "user", Content = message });
+        
         var requestBody = new ChatCompletionsRequest
         {
             Model = ChatModel,
-            Messages = messages,
+            Messages = _history,
         };
         var jsonContent = JsonSerializer.Serialize(requestBody);
 
@@ -37,7 +40,26 @@ public class OpenAiService
         response.EnsureSuccessStatusCode();
         
         var responseBody = await response.Content.ReadFromJsonAsync<ChatCompletion>();
+        var assistantChat = responseBody?.Choices.FirstOrDefault()?.Message;
+        if (assistantChat != null)
+        {
+            _history.Add(assistantChat);
+        }
+
+        EnsureLengthOfHistory();
+        
         return responseBody?.Choices.FirstOrDefault()?.Message.Content ?? "";
+    }
+
+    private void EnsureLengthOfHistory()
+    {
+        const int maxLength = 10000;
+        var length = _history.Sum(chat => chat.Content.Length);
+        while (length > maxLength && _history.Count > 1)
+        {
+            length -= _history[0].Content.Length;
+            _history.RemoveAt(0);
+        }
     }
 
     public async Task<ImageData?> GenerateImage(
